@@ -10,15 +10,15 @@ Before we dive into the data, let's take a step back and think about what we're 
 
 So first, let's begin with the end in mind:
 
-1. what is the purpose of this analysis/prediction model? **Data Science take home challenge to assess a candidates competency with a data analysis assignment.**
+1. What is the purpose of this analysis/prediction model? **Data Science take home challenge to assess a candidates competency with a data analysis assignment.**
 
 Second, now let's begin with the beginning:
 
-2. what problem are we trying to solve? **Classification problem to predict which customers would convert on our website.**
+2. What problem are we trying to solve? **Classification problem to predict which customers would convert on our website.**
 
-### Below are some additions questions we should/could ask after reading the assignment problem statement. 
+### Below are some additional questions we should/could ask after reading the assignment problem statement. 
 
-1. How was the data captured? This usually informs us of potetnial biases that may be inherently embedded in the data which can ultimately leads us to appropriate feature engineering or chose a model that best captures this phenomenon we're looking to model. E.g., classification model with Logistic Regression or Random Forest
+1. How was the data captured? This usually informs us of potetnial biases that may be inherently embedded in the data which can ultimately lead us to the appropriate variables we would need to feature engineer or choose a model that best captures the phenomenon we're looking to model. E.g., classification model with Logistic Regression or Random Forest
 2. What was happening at the time the data was captured? 
 3. Does each record capture a unique user?
     + 3a. How many records are in the dataset? 
@@ -28,20 +28,20 @@ Second, now let's begin with the beginning:
 5. Customers don’t typically supply age information upon sign-in. They could provide incorrect age.
 6. What is the conversion rate?
 7. What day of the week was the data captured? Weekday visitors may look different than weekend. 
-8. Was the data sampled? If so there maybe biases in the sampling.
+8. Was the data sampled? If so, there maybe biases in the sampling.
 
 ### Concluding/Working hypothesis after preliminary research:
 1. Proceed with caution from the prediction or analysis from this dataset. The dataset doesn't seem to be grounded in too many cogent business practices. 
 2. I could see major issues with this data:
-    2a. user session on average about 30 mins. 
-    2b. What if a user visited the site 2 or 3 times in a day that gets captured in several sessions? 
+    + 2a. user session on average about 30 mins. 
+    + 2b. What if a user visited the site 2 or 3 times in a day that gets captured in several sessions? 
 3. An individual session - even though they convert may not provide enough info on the user
 4. What about the platform the user converted on? mobile tends to be higher conversion rate than desktop?
 5. People browse on desktop and convert on mobile at some ecommerce companies. I suspect it will depend on how convenient the product is for shopping
-6. There also seem to be leakage in the data. If the prediction model would be used for real time predicction on the website, the variable total_pages_vsited is only available after the consumer has ended their session. So even of it turns out to be a great predictor, it won't be available until the customer leaves the site. A workaround could break take the distrition of pages visted over a time period as a work around. 
+6. There also seem to be leakage in the data. If the prediction model is supposed to be used in real time predicction on the website, the variable total_pages_vsited is only available after the consumer has ended their session. So even if it turns out to be a great predictor, it won't be available until the customer leaves the site. A workaround could be: take the distrition of pages visted over a time period as a work around. 
 
 ### Now that we have a working hypothesis, let's take a look at the data.
-1. Let's take a look at the data and see if our initial hypothesis is wrong. OR better yet, reveal something to us that we just don't know about. And, it should be fun. 
+1. Let's take a look at the data and see if our initial hypothesis is wrong. OR better yet, reveal something to us that we just don't know about. This should be fun. 
 
 # Data Processing
 
@@ -94,9 +94,9 @@ summary(conversion)
 
 ###A few quick observations:
 
-1. The site is probably a US site, although it does have a large Chinese user base as well user base is pretty young
-2. Conversion rate at around 3% is industry standard. It makes sense.
-3. Summary reveals that a user has age of 123. Did this users purchase? They self disclosed age, it could be wrong. Do we drop it or impute it? 
+1. The site is probably a US site, although it does have a large Chinese user base. The user base is also relatively young. 
+2. Conversion rate at around 3%. This is approximately industry standard.
+3. Summary reveals that a user has age of 123. Did this user purchase? They self disclosed age, it could be wrong. Do we drop it or impute it? 
 
 Let's take a look at age closely. 
 ```{r}
@@ -123,20 +123,20 @@ subset(conversion, age>79)
 ```
 
 It is just 2 users! In this case, we can remove them, it won't have much effect on our analysis/prediction. In general, depending on the problem, we can:
-1. remove the entire row saying we don’t trust those data point and treat those values as NAs
-2. if there is a pattern, try to figure out what went wrong.
+
+1. Remove the entire row saying we don’t trust those data point and treat those values as NAs
+
+2. If there is a pattern, try to figure out what went wrong.
 In doubt, always go with removing the row. It is the safest choice.
 
 We probably also want to emphasize in the text that wrong data is worrisome and can be an indicator of some bug in the logging code.
-**This is exactly in line with some of the intuition we formed before even looking at the data**
-Therefore, you’d like to talk to the software engineer who implemented the code to see if, perhaps, there are some bugs which affect the data significantly. You can use this an opportunity to follow-up on other questions you may have. Anyway, here is probably just users who put wrong data. So let’s remove them:
+**This is exactly in line with some of the intuition we formed before even looking at the data**. This is an instance where can metnion that you'd like to talk with the software engineer who implemented the code to see if, perhaps, there are some bugs which affect the data significantly. You can use this as an opportunity to follow-up on other questions you may have. Anyway, here is probably just users who put in wrong data. So let’s remove them:
 
 ```{r}
 conversion <- subset(conversion, age<80)
 ```
 
-Now, let’s quickly investigate the variables and how their distribution differs for the two classes. 
-This will help us understand whether there is any information in our data in the first place and get a sense of the  data.
+Now, let’s quickly investigate the variables and how their distribution differs for the two classes. This will help us understand whether there is any information in our data in the first place and get a sense of the  data.
 
 ##Never start by blindly building a machine learning/predictive model.
 
@@ -170,16 +170,16 @@ Let’s now build a model to predict conversion rate. Outcome is binary and we c
 
 1. Logistic regression
 2. Decision Trees
-3. RuleFit (this is often your best choice)
-4. Random Forest in combination with partial dependence plots
+3. Random Forest in combination with partial dependence plots
 
-I am going to pick a random forest to predict conversion rate. I pick a random forest because: 
-1. it usually requires very little time to optimize it (its default params are often close to the best ones) 
-2. it is strong with outliers, irrelevant variables, continuous and discrete variables. 
+I am going to pick a random forest to predict conversion rate. Reasons: 
 
-I will use the random forest to predict conversion, then I will use its partial dependence plots and variable importance to get insights about how it got information from the variables. Also, I will build a simple tree to find the most obvious user segments and see if they agree with Random Forest partial dependence plots.
+1. It usually requires very little time to optimize it (its default params are often close to the best ones) 
+2. It is strong with outliers, irrelevant variables, continuous and discrete variables. 
 
-First, “Converted” should really be a factor aka categorial variable here. So let’s change it:
+I will use Random Forest to predict conversion, then I will use its partial dependence plots and variable importance to get insights about how it got information from the variables. Also, I will build a simple tree to find the most obvious user segments to see if they agree with Random Forest partial dependence plots.
+
+First, “converted” should really be a factor aka categorial variable here. So let’s change it:
 
 ```{r}
 conversion$converted = as.factor(conversion$converted)
@@ -201,7 +201,7 @@ rf
 ```
 
 So, OOB error and test error are pretty similar: 3.1% and 3%. We are confident we are not overfitting. Error is pretty low. However, we started from a 97% accuracy (that’s the case if we classified everything as “non converted”). So, 98.5% is good, but nothing shocking. Indeed, 30% of conversions are predicted as “non conversion”.
-If we cared about the very best possible accuracy or specifically minimizing false positive/false negative, we would also use ROCR and find the best cut-off point. Since in this case that doesn’t appear to be particularly relevant, we are fine with the default 0.5 cutoff value used internally by the random forest to make the prediction. Again, if ROC and cut-off analysis is something you know very well, you should do it no matter what.
+If we cared about the very best possible accuracy or specifically minimizing false positive/false negative, we would also use ROCR and find the best cut-off point. Since in this case that doesn’t appear to be particularly relevant, we are fine with the default 0.5 cutoff value used internally by the random forest to make the prediction. Again, if ROC and cut-off analysis is something you know very well, you should do it.
 If you care about insights, building a model is just the first step. You need to check that the model predicts well and, if it does, you can now extract insights out of it.
 
 Let’s start checking variable importance:
@@ -210,7 +210,7 @@ Let’s start checking variable importance:
 varImpPlot(rf,type=2)
 ```
 
-Total pages visited is the most important one, by far. Unfortunately, it is probably the least “actionable”. People visit many pages cause they already want to buy. Also, in order to buy you have to click on multiple pages.
+Total pages visited is the most important one, by far. Unfortunately, it is probably the least “actionable”. People visit many pages cause they already want to buy (in addition to leakage we mentioned earlier). Also, in order to buy you have to click on multiple pages.
 Let’s rebuild the RF without that variable. Since classes are heavily unbalanced and we don’t have that very powerful variable anymore, let’s change the weight a bit, just to make sure we will get something classified as 1.
 
 ```{r}
@@ -240,6 +240,7 @@ partialPlot(rf, train_data, source, 1)
 ```
 
 In partial dependence plots, we just care about the trend, not the actual y value. So this shows that:
+
 1. Users with an old account are much better than new users
 2. China is really bad, all other countries are similar with Germany being the best
 3. The site works very well for young people and bad for less young people (>30 yrs old)
@@ -258,6 +259,7 @@ tree
 ## Conclusion 
 
 ###A simple small tree confirms exactly the random forest findings. Some conclusions and suggestions:
+
 1. The site is working very well for young users. We could recommend to marketing to advertise and use marketing channel which are more likely to reach young people.
 2. The site is working very well for Germany in terms of conversion. But the summary showed that there are few Germans coming to the site: way less than UK, despite a larger population. Again, marketing should get more Germans. Big opportunity.
 3. Users with old accounts do much better. Targeted emails with offers to bring them back to the site could be a good idea to try.
@@ -266,6 +268,9 @@ tree
 6. If I know someone has visited many pages, but hasn’t converted, she almost surely has high purchase intent. I could email her targeted offers or sending her reminders. Overall, these are probably the easiest users to make convert.
 
 ###As you can see, conclusions usually end up being about:
+
 1. tell marketing to get more of the good performing user segments
 2. tell product to fix the experience for the bad performing ones
+
+
 
